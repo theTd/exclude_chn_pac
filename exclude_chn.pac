@@ -4791,14 +4791,14 @@ Selector.prototype = {
     if (host in this.resultCache) {
       return this.resultCache[host]
     }
-    let result
+    var result = false
     for (let i = 0; i < this.whitelistRanges.length; i++) {
       let range = this.whitelistRanges[i]
       if (isInNet(host, range.netid, range.netmask)) {
         result = true
+        break
       }
     }
-    result = false
     if (this.cacheEntries >= Selector.maxCacheEntries) {
       this.resultCache = createDict()
       this.cacheEntries = 0
