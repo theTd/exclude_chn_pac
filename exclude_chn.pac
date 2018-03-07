@@ -8158,6 +8158,19 @@ function Selector () {
   this.resultCache = []
 }
 
+var ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
+
+function isIntranet(addr) {
+  return isInNet(addr, '0.0.0.0', '255.0.0.0') |
+    isInNet(addr, '10.0.0.0', '255.0.0.0') |
+    isInNet(addr, '127.0.0.0', '255.0.0.0') |
+    isInNet(addr, '169.254.0.0', '255.255.0.0') |
+    isInNet(addr, '172.16.0.0', '255.240.0.0') |
+    isInNet(addr, '192.168.0.0', '255.255.0.0') |
+    isInNet(addr, '224.0.0.0', '240.0.0.0') |
+    isInNet(addr, '240.0.0.0', '240.0.0.0')
+}
+
 Selector.maxCacheEntries = 1000
 Selector.prototype = {
   whitelistRanges: null,
@@ -8182,11 +8195,15 @@ Selector.prototype = {
       return this.resultCache[host]
     }
     var result = false
-    for (let i = 0; i < this.whitelistRanges.length; i++) {
-      let range = this.whitelistRanges[i]
-      if (isInNet(host, range.netid, range.netmask)) {
-        result = true
-        break
+    if (isIntranet(host)) {
+      result = true
+    } else {
+      for (let i = 0; i < this.whitelistRanges.length; i++) {
+        let range = this.whitelistRanges[i]
+        if (isInNet(host, range.netid, range.netmask)) {
+          result = true
+          break
+        }
       }
     }
     if (this.cacheEntries >= Selector.maxCacheEntries) {
@@ -8213,8 +8230,13 @@ var proxy = 'SOCKS5 127.0.0.1:1086; SOCKS 127.0.0.1:1086; DIRECT;'
 var direct = 'DIRECT;'
 
 function FindProxyForURL (url, host) {
-  var resolved_ip = dnsResolve(host)
-  if (selector.isWhitelisted(resolved_ip)) {
+  var ip;
+  if (ipPattern.exec(host)) {
+    ip = host
+  } else {
+    ip = dnsResolve(host)
+  }
+  if (selector.isWhitelisted(ip)) {
     return direct
   }
   return proxy
