@@ -5183,17 +5183,6 @@ function Selector() {
   this.resultCache = []
 }
 
-// function isIntranet(addr) {
-//   return isInNet(addr, '0.0.0.0', '255.0.0.0') ||
-//     isInNet(addr, '10.0.0.0', '255.0.0.0') ||
-//     isInNet(addr, '127.0.0.0', '255.0.0.0') ||
-//     isInNet(addr, '169.254.0.0', '255.255.0.0') ||
-//     isInNet(addr, '172.16.0.0', '255.240.0.0') ||
-//     isInNet(addr, '192.168.0.0', '255.255.0.0') ||
-//     isInNet(addr, '224.0.0.0', '240.0.0.0') ||
-//     isInNet(addr, '240.0.0.0', '240.0.0.0')
-// }
-
 Selector.maxCacheEntries = 1000
 Selector.prototype = {
   whitelistSubnets: null,
@@ -5300,7 +5289,6 @@ function FindProxyForURL(url, host) {
     ip = host
   } else {
     ip = dnsResolve(host)
-    ip = dns.resolve(host);
   }
   if (selector.isWhitelisted(ip)) {
     return direct
